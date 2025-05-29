@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图标生成器 - 750×1624 PNG创建工具</title>
+    <title>高级图标生成工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,8 +13,18 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
+        :root {
+            --primary: #6c5ce7;
+            --primary-dark: #5d4aec;
+            --secondary: #a29bfe;
+            --light: #f7f7ff;
+            --dark: #2d3436;
+            --gray: #636e72;
+            --success: #00b894;
+        }
+        
         body {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
             color: #333;
             min-height: 100vh;
             padding: 20px;
@@ -23,7 +34,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             width: 100%;
             display: flex;
             flex-wrap: wrap;
@@ -39,9 +50,12 @@
         }
         
         header h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            background: linear-gradient(to right, #fff, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         header p {
@@ -49,15 +63,17 @@
             max-width: 800px;
             margin: 0 auto;
             opacity: 0.9;
+            color: #e0e0ff;
         }
         
         .panel {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            padding: 25px;
+            background: rgba(255, 255, 255, 0.93);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            padding: 30px;
             flex: 1;
-            min-width: 300px;
+            min-width: 350px;
+            backdrop-filter: blur(10px);
         }
         
         .preview-panel {
@@ -68,48 +84,72 @@
         }
         
         .panel-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #5d5dff;
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0ff;
         }
         
         .panel-title i {
             font-size: 1.8rem;
+            background: var(--primary);
+            color: white;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
         }
         
         .upload-area {
-            border: 2px dashed #c0c0ff;
-            border-radius: 10px;
+            border: 2px dashed var(--secondary);
+            border-radius: 15px;
             padding: 40px 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
             background: #f8f9ff;
             margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
         }
         
         .upload-area:hover {
-            border-color: #5d5dff;
+            border-color: var(--primary);
             background: #edf0ff;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(93, 93, 255, 0.15);
         }
         
         .upload-area i {
-            font-size: 3rem;
-            color: #5d5dff;
+            font-size: 3.5rem;
+            color: var(--primary);
             margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover i {
+            transform: scale(1.1);
+            color: var(--primary-dark);
         }
         
         .upload-area h3 {
             margin-bottom: 10px;
-            color: #444;
+            color: var(--dark);
+            font-size: 1.4rem;
         }
         
         .upload-area p {
-            color: #777;
-            font-size: 0.9rem;
+            color: var(--gray);
+            font-size: 0.95rem;
+            max-width: 300px;
+            margin: 0 auto;
         }
         
         #file-input {
@@ -119,32 +159,63 @@
         .color-controls {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
+            margin-bottom: 30px;
         }
         
-        .color-option {
+        .control-group {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .control-group h3 {
+            margin-bottom: 18px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .control-group h3 i {
+            font-size: 1.3rem;
+        }
+        
+        .control-row {
             display: flex;
             align-items: center;
             gap: 15px;
+            margin-bottom: 15px;
         }
         
-        .color-option label {
+        .control-label {
             width: 120px;
-            font-weight: 500;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
         }
         
         .color-inputs {
             flex: 1;
             display: flex;
             gap: 10px;
+            align-items: center;
         }
         
         input[type="color"] {
             width: 50px;
             height: 40px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        input[type="color"]:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px white, 0 0 0 5px var(--primary);
         }
         
         .gradient-check {
@@ -152,16 +223,19 @@
             align-items: center;
             gap: 10px;
             margin-top: 10px;
+            padding: 10px 0;
         }
         
         .slider-container {
-            margin-top: 25px;
+            margin-top: 10px;
         }
         
         .slider-label {
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--dark);
         }
         
         input[type="range"] {
@@ -170,16 +244,59 @@
             border-radius: 4px;
             background: #e0e0ff;
             outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .dimension-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .dimension-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .dimension-input label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: var(--dark);
+        }
+        
+        .dimension-input input {
+            padding: 12px 15px;
+            border: 2px solid #e0e0ff;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .dimension-input input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
         }
         
         .preview-container {
             position: relative;
-            width: 300px;
-            height: 650px;
+            width: 320px;
+            height: 692px;
             border: 1px solid #ddd;
-            border-radius: 10px;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             background: white;
             margin-bottom: 25px;
         }
@@ -193,37 +310,45 @@
         .preview-info {
             background: #f8f9ff;
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 12px;
             text-align: center;
             width: 100%;
             margin-top: 15px;
             font-size: 0.9rem;
-            color: #555;
+            color: var(--gray);
+            font-weight: 500;
         }
         
         .download-btn {
-            background: linear-gradient(to right, #5d5dff, #7a7aff);
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
             color: white;
             border: none;
-            padding: 14px 30px;
-            font-size: 1.1rem;
+            padding: 16px 40px;
+            font-size: 1.2rem;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin: 20px auto 0;
-            box-shadow: 0 5px 15px rgba(93, 93, 255, 0.4);
+            gap: 12px;
+            margin: 25px auto 0;
+            box-shadow: 0 7px 20px rgba(93, 93, 255, 0.5);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .download-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(93, 93, 255, 0.6);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(93, 93, 255, 0.7);
         }
         
         .download-btn:active {
             transform: translateY(0);
+        }
+        
+        .download-btn i {
+            font-size: 1.4rem;
         }
         
         footer {
@@ -235,44 +360,128 @@
             width: 100%;
         }
         
-        @media (max-width: 768px) {
+        .preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+        
+        .grid-line {
+            position: absolute;
+            background: rgba(255, 0, 0, 0.2);
+        }
+        
+        .horizontal {
+            width: 100%;
+            height: 1px;
+            left: 0;
+        }
+        
+        .vertical {
+            height: 100%;
+            width: 1px;
+            top: 0;
+        }
+        
+        .center-marker {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 0, 0, 0.5);
+            transform: translate(-50%, -50%);
+        }
+        
+        @media (max-width: 900px) {
             .container {
                 flex-direction: column;
             }
             
             .preview-container {
-                width: 250px;
-                height: 540px;
+                width: 280px;
+                height: 605px;
+            }
+            
+            .dimension-controls {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>图标生成器</h1>
-        <p>上传正方形图标，生成750×1624尺寸的PNG图片 - 图标居中显示并带圆角效果，支持自定义背景颜色</p>
+        <h1><i class="fas fa-cube"></i> 高级图标生成工具</h1>
+        <p>上传图标，生成750×1624尺寸的PNG图片 - 完全自定义图标位置、大小、圆角及背景效果</p>
     </header>
     
     <div class="container">
         <div class="panel">
             <h2 class="panel-title">
-                <i>📁</i> 图标上传
+                <i class="fas fa-upload"></i> 图标设置
             </h2>
             
             <div class="upload-area" id="upload-area">
-                <i>⬆️</i>
+                <i class="fas fa-cloud-upload-alt"></i>
                 <h3>点击或拖放图标文件</h3>
                 <p>支持PNG、JPG、SVG格式（建议正方形图标）</p>
                 <input type="file" id="file-input" accept="image/*">
             </div>
             
-            <h2 class="panel-title">
-                <i>🎨</i> 背景设置
-            </h2>
+            <div class="control-group">
+                <h3><i class="fas fa-expand-arrows-alt"></i> 图标位置与大小</h3>
+                
+                <div class="control-row">
+                    <div class="control-label">X 位置:</div>
+                    <div class="color-inputs">
+                        <input type="range" id="pos-x" min="0" max="750" value="375">
+                        <span id="pos-x-value">375px</span>
+                    </div>
+                </div>
+                
+                <div class="control-row">
+                    <div class="control-label">Y 位置:</div>
+                    <div class="color-inputs">
+                        <input type="range" id="pos-y" min="0" max="1624" value="812">
+                        <span id="pos-y-value">812px</span>
+                    </div>
+                </div>
+                
+                <div class="control-row">
+                    <div class="control-label">图标大小:</div>
+                    <div class="color-inputs">
+                        <input type="range" id="icon-size" min="50" max="500" value="200">
+                        <span id="icon-size-value">200px</span>
+                    </div>
+                </div>
+                
+                <div class="control-row">
+                    <div class="control-label">圆角大小:</div>
+                    <div class="color-inputs">
+                        <input type="range" id="corner-slider" min="0" max="100" value="25">
+                        <span id="corner-value">25%</span>
+                    </div>
+                </div>
+            </div>
             
-            <div class="color-controls">
-                <div class="color-option">
-                    <label>主背景颜色:</label>
+            <div class="control-group">
+                <h3><i class="fas fa-palette"></i> 背景设置</h3>
+                
+                <div class="dimension-controls">
+                    <div class="dimension-input">
+                        <label>背景宽度:</label>
+                        <input type="number" id="bg-width" min="100" max="2000" value="750">
+                    </div>
+                    <div class="dimension-input">
+                        <label>背景高度:</label>
+                        <input type="number" id="bg-height" min="100" max="3000" value="1624">
+                    </div>
+                </div>
+                
+                <div class="control-row">
+                    <div class="control-label">背景颜色:</div>
                     <div class="color-inputs">
                         <input type="color" id="bg-color1" value="#ffffff">
                     </div>
@@ -283,44 +492,37 @@
                     <label for="use-gradient">启用渐变背景</label>
                 </div>
                 
-                <div class="color-option" id="gradient-color" style="display: none;">
-                    <label>次背景颜色:</label>
+                <div class="control-row" id="gradient-color" style="display: none;">
+                    <div class="control-label">渐变颜色:</div>
                     <div class="color-inputs">
                         <input type="color" id="bg-color2" value="#ddddff">
                     </div>
                 </div>
             </div>
-            
-            <div class="slider-container">
-                <div class="slider-label">
-                    <label>图标圆角大小:</label>
-                    <span id="corner-value">25%</span>
-                </div>
-                <input type="range" id="corner-slider" min="0" max="50" value="25">
-            </div>
         </div>
         
         <div class="panel preview-panel">
             <h2 class="panel-title">
-                <i>👁️</i> 效果预览
+                <i class="fas fa-eye"></i> 实时预览
             </h2>
             
             <div class="preview-container">
                 <canvas id="preview-canvas" width="750" height="1624"></canvas>
+                <div class="preview-overlay" id="preview-overlay"></div>
             </div>
             
             <div class="preview-info">
-                预览比例: 40% (实际尺寸: 750×1624)
+                预览比例: 40% (实际尺寸: <span id="dimensions-display">750×1624</span> 像素)
             </div>
             
             <button id="download-btn" class="download-btn">
-                <i>⬇️</i> 下载PNG图片
+                <i class="fas fa-download"></i> 下载PNG图片
             </button>
         </div>
     </div>
     
     <footer>
-        <p>© 2023 图标生成器 | 使用HTML5 Canvas技术生成 | 图片尺寸: 750×1624像素</p>
+        <p>© 2023 高级图标生成器 | 使用HTML5 Canvas技术 | 所有处理在浏览器中完成</p>
     </footer>
 
     <script>
@@ -336,15 +538,49 @@
         const cornerSlider = document.getElementById('corner-slider');
         const cornerValue = document.getElementById('corner-value');
         const downloadBtn = document.getElementById('download-btn');
+        const posX = document.getElementById('pos-x');
+        const posY = document.getElementById('pos-y');
+        const posXValue = document.getElementById('pos-x-value');
+        const posYValue = document.getElementById('pos-y-value');
+        const iconSize = document.getElementById('icon-size');
+        const iconSizeValue = document.getElementById('icon-size-value');
+        const bgWidth = document.getElementById('bg-width');
+        const bgHeight = document.getElementById('bg-height');
+        const dimensionsDisplay = document.getElementById('dimensions-display');
+        const previewOverlay = document.getElementById('preview-overlay');
         
         // 初始化变量
         let uploadedImage = null;
-        const targetWidth = 750;
-        const targetHeight = 1624;
+        let targetWidth = 750;
+        let targetHeight = 1624;
         
         // 设置canvas尺寸
         canvas.width = targetWidth;
         canvas.height = targetHeight;
+        
+        // 绘制参考线
+        function drawGuidelines() {
+            previewOverlay.innerHTML = '';
+            
+            // 中心标记
+            const centerMarker = document.createElement('div');
+            centerMarker.className = 'center-marker';
+            centerMarker.style.left = '50%';
+            centerMarker.style.top = '50%';
+            previewOverlay.appendChild(centerMarker);
+            
+            // 水平线
+            const hLine = document.createElement('div');
+            hLine.className = 'grid-line horizontal';
+            hLine.style.top = '50%';
+            previewOverlay.appendChild(hLine);
+            
+            // 垂直线
+            const vLine = document.createElement('div');
+            vLine.className = 'grid-line vertical';
+            vLine.style.left = '50%';
+            previewOverlay.appendChild(vLine);
+        }
         
         // 上传区域点击事件
         uploadArea.addEventListener('click', () => {
@@ -394,6 +630,40 @@
             drawImage();
         });
         
+        // 位置滑块
+        posX.addEventListener('input', () => {
+            posXValue.textContent = `${posX.value}px`;
+            drawImage();
+        });
+        
+        posY.addEventListener('input', () => {
+            posYValue.textContent = `${posY.value}px`;
+            drawImage();
+        });
+        
+        // 图标大小滑块
+        iconSize.addEventListener('input', () => {
+            iconSizeValue.textContent = `${iconSize.value}px`;
+            drawImage();
+        });
+        
+        // 背景尺寸输入
+        bgWidth.addEventListener('input', () => {
+            targetWidth = parseInt(bgWidth.value) || 750;
+            canvas.width = targetWidth;
+            posX.max = targetWidth;
+            updateDimensionsDisplay();
+            drawImage();
+        });
+        
+        bgHeight.addEventListener('input', () => {
+            targetHeight = parseInt(bgHeight.value) || 1624;
+            canvas.height = targetHeight;
+            posY.max = targetHeight;
+            updateDimensionsDisplay();
+            drawImage();
+        });
+        
         // 颜色变化事件
         bgColor1.addEventListener('input', drawImage);
         bgColor2.addEventListener('input', drawImage);
@@ -406,7 +676,7 @@
             }
             
             const link = document.createElement('a');
-            link.download = 'generated-icon-banner.png';
+            link.download = 'custom-icon-banner.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         });
@@ -423,11 +693,26 @@
                 const img = new Image();
                 img.onload = function() {
                     uploadedImage = img;
+                    
+                    // 设置初始位置为画布中心
+                    const centerX = Math.max(0, (targetWidth - iconSize.value) / 2);
+                    const centerY = Math.max(0, (targetHeight - iconSize.value) / 2);
+                    
+                    posX.value = Math.round(centerX);
+                    posY.value = Math.round(centerY);
+                    posXValue.textContent = `${posX.value}px`;
+                    posYValue.textContent = `${posY.value}px`;
+                    
                     drawImage();
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
+        }
+        
+        // 更新尺寸显示
+        function updateDimensionsDisplay() {
+            dimensionsDisplay.textContent = `${targetWidth}×${targetHeight}`;
         }
         
         // 绘制图片
@@ -441,9 +726,12 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
                 ctx.fillStyle = '#ccc';
-                ctx.font = '24px Arial';
+                ctx.font = 'bold 24px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText('上传图标预览', canvas.width/2, canvas.height/2);
+                ctx.fillText('上传图标预览', canvas.width/2, canvas.height/2 - 20);
+                
+                ctx.font = '16px Arial';
+                ctx.fillText('尺寸: ' + canvas.width + '×' + canvas.height, canvas.width/2, canvas.height/2 + 20);
                 return;
             }
             
@@ -458,13 +746,11 @@
             }
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // 计算图标尺寸和位置
-            const iconMaxSize = Math.min(canvas.width, canvas.height) * 0.5;
-            const scale = Math.min(iconMaxSize / uploadedImage.width, iconMaxSize / uploadedImage.height);
-            const iconWidth = uploadedImage.width * scale;
-            const iconHeight = uploadedImage.height * scale;
-            const x = (canvas.width - iconWidth) / 2;
-            const y = (canvas.height - iconHeight) / 2;
+            // 计算图标位置和尺寸
+            const iconWidth = parseInt(iconSize.value);
+            const iconHeight = parseInt(iconSize.value);
+            const x = parseInt(posX.value);
+            const y = parseInt(posY.value);
             
             // 计算圆角半径（基于百分比）
             const cornerRadius = parseFloat(cornerSlider.value) / 100 * Math.min(iconWidth, iconHeight) / 2;
@@ -487,9 +773,15 @@
             
             // 绘制图标
             ctx.drawImage(uploadedImage, x, y, iconWidth, iconHeight);
+            
+            // 重置裁剪
+            ctx.restore();
+            ctx.save();
         }
         
         // 初始化绘制
+        updateDimensionsDisplay();
+        drawGuidelines();
         drawImage();
     </script>
 </body>
