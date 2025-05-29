@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图标生成器 - 750×1624 PNG创建工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin: 20px 0;
+            width: 100%;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 25px;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .preview-panel {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .panel-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #5d5dff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-title i {
+            font-size: 1.8rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed #c0c0ff;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+            margin-bottom: 25px;
+        }
+        
+        .upload-area:hover {
+            border-color: #5d5dff;
+            background: #edf0ff;
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: #5d5dff;
+            margin-bottom: 15px;
+        }
+        
+        .upload-area h3 {
+            margin-bottom: 10px;
+            color: #444;
+        }
+        
+        .upload-area p {
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .color-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .color-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .color-option label {
+            width: 120px;
+            font-weight: 500;
+        }
+        
+        .color-inputs {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .gradient-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .slider-container {
+            margin-top: 25px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e0e0ff;
+            outline: none;
+        }
+        
+        .preview-container {
+            position: relative;
+            width: 300px;
+            height: 650px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            background: white;
+            margin-bottom: 25px;
+        }
+        
+        #preview-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .preview-info {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .download-btn {
+            background: linear-gradient(to right, #5d5dff, #7a7aff);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px auto 0;
+            box-shadow: 0 5px 15px rgba(93, 93, 255, 0.4);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(93, 93, 255, 0.6);
+        }
+        
+        .download-btn:active {
+            transform: translateY(0);
+        }
+        
+        footer {
+            color: rgba(255,255,255,0.7);
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .preview-container {
+                width: 250px;
+                height: 540px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>图标生成器</h1>
+        <p>上传正方形图标，生成750×1624尺寸的PNG图片 - 图标居中显示并带圆角效果，支持自定义背景颜色</p>
+    </header>
+    
+    <div class="container">
+        <div class="panel">
+            <h2 class="panel-title">
+                <i>📁</i> 图标上传
+            </h2>
+            
+            <div class="upload-area" id="upload-area">
+                <i>⬆️</i>
+                <h3>点击或拖放图标文件</h3>
+                <p>支持PNG、JPG、SVG格式（建议正方形图标）</p>
+                <input type="file" id="file-input" accept="image/*">
+            </div>
+            
+            <h2 class="panel-title">
+                <i>🎨</i> 背景设置
+            </h2>
+            
+            <div class="color-controls">
+                <div class="color-option">
+                    <label>主背景颜色:</label>
+                    <div class="color-inputs">
+                        <input type="color" id="bg-color1" value="#ffffff">
+                    </div>
+                </div>
+                
+                <div class="gradient-check">
+                    <input type="checkbox" id="use-gradient">
+                    <label for="use-gradient">启用渐变背景</label>
+                </div>
+                
+                <div class="color-option" id="gradient-color" style="display: none;">
+                    <label>次背景颜色:</label>
+                    <div class="color-inputs">
+                        <input type="color" id="bg-color2" value="#ddddff">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="slider-container">
+                <div class="slider-label">
+                    <label>图标圆角大小:</label>
+                    <span id="corner-value">25%</span>
+                </div>
+                <input type="range" id="corner-slider" min="0" max="50" value="25">
+            </div>
+        </div>
+        
+        <div class="panel preview-panel">
+            <h2 class="panel-title">
+                <i>👁️</i> 效果预览
+            </h2>
+            
+            <div class="preview-container">
+                <canvas id="preview-canvas" width="750" height="1624"></canvas>
+            </div>
+            
+            <div class="preview-info">
+                预览比例: 40% (实际尺寸: 750×1624)
+            </div>
+            
+            <button id="download-btn" class="download-btn">
+                <i>⬇️</i> 下载PNG图片
+            </button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2023 图标生成器 | 使用HTML5 Canvas技术生成 | 图片尺寸: 750×1624像素</p>
+    </footer>
+
+    <script>
+        // 获取DOM元素
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const canvas = document.getElementById('preview-canvas');
+        const ctx = canvas.getContext('2d');
+        const bgColor1 = document.getElementById('bg-color1');
+        const bgColor2 = document.getElementById('bg-color2');
+        const useGradient = document.getElementById('use-gradient');
+        const gradientColor = document.getElementById('gradient-color');
+        const cornerSlider = document.getElementById('corner-slider');
+        const cornerValue = document.getElementById('corner-value');
+        const downloadBtn = document.getElementById('download-btn');
+        
+        // 初始化变量
+        let uploadedImage = null;
+        const targetWidth = 750;
+        const targetHeight = 1624;
+        
+        // 设置canvas尺寸
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        
+        // 上传区域点击事件
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // 拖放功能
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#5d5dff';
+            uploadArea.style.backgroundColor = '#edf0ff';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#c0c0ff';
+            uploadArea.style.backgroundColor = '#f8f9ff';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#c0c0ff';
+            uploadArea.style.backgroundColor = '#f8f9ff';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+        
+        // 文件选择事件
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+        
+        // 渐变背景切换
+        useGradient.addEventListener('change', () => {
+            gradientColor.style.display = useGradient.checked ? 'flex' : 'none';
+            drawImage();
+        });
+        
+        // 圆角滑块
+        cornerSlider.addEventListener('input', () => {
+            const value = cornerSlider.value;
+            cornerValue.textContent = `${value}%`;
+            drawImage();
+        });
+        
+        // 颜色变化事件
+        bgColor1.addEventListener('input', drawImage);
+        bgColor2.addEventListener('input', drawImage);
+        
+        // 下载按钮
+        downloadBtn.addEventListener('click', () => {
+            if (!uploadedImage) {
+                alert('请先上传图标！');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = 'generated-icon-banner.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+        
+        // 处理文件上传
+        function handleFileUpload(file) {
+            if (!file.type.match('image.*')) {
+                alert('请上传图片文件！');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    uploadedImage = img;
+                    drawImage();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 绘制图片
+        function drawImage() {
+            // 清除画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (!uploadedImage) {
+                // 没有上传图片时显示默认状态
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#ccc';
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('上传图标预览', canvas.width/2, canvas.height/2);
+                return;
+            }
+            
+            // 绘制背景
+            if (useGradient.checked) {
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, bgColor1.value);
+                gradient.addColorStop(1, bgColor2.value);
+                ctx.fillStyle = gradient;
+            } else {
+                ctx.fillStyle = bgColor1.value;
+            }
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 计算图标尺寸和位置
+            const iconMaxSize = Math.min(canvas.width, canvas.height) * 0.5;
+            const scale = Math.min(iconMaxSize / uploadedImage.width, iconMaxSize / uploadedImage.height);
+            const iconWidth = uploadedImage.width * scale;
+            const iconHeight = uploadedImage.height * scale;
+            const x = (canvas.width - iconWidth) / 2;
+            const y = (canvas.height - iconHeight) / 2;
+            
+            // 计算圆角半径（基于百分比）
+            const cornerRadius = parseFloat(cornerSlider.value) / 100 * Math.min(iconWidth, iconHeight) / 2;
+            
+            // 绘制圆角矩形路径
+            ctx.beginPath();
+            ctx.moveTo(x + cornerRadius, y);
+            ctx.lineTo(x + iconWidth - cornerRadius, y);
+            ctx.arcTo(x + iconWidth, y, x + iconWidth, y + cornerRadius, cornerRadius);
+            ctx.lineTo(x + iconWidth, y + iconHeight - cornerRadius);
+            ctx.arcTo(x + iconWidth, y + iconHeight, x + iconWidth - cornerRadius, y + iconHeight, cornerRadius);
+            ctx.lineTo(x + cornerRadius, y + iconHeight);
+            ctx.arcTo(x, y + iconHeight, x, y + iconHeight - cornerRadius, cornerRadius);
+            ctx.lineTo(x, y + cornerRadius);
+            ctx.arcTo(x, y, x + cornerRadius, y, cornerRadius);
+            ctx.closePath();
+            
+            // 裁剪路径
+            ctx.clip();
+            
+            // 绘制图标
+            ctx.drawImage(uploadedImage, x, y, iconWidth, iconHeight);
+        }
+        
+        // 初始化绘制
+        drawImage();
+    </script>
+</body>
+</html>
