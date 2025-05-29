@@ -291,17 +291,21 @@
         
         .preview-container {
             position: relative;
-            width: 320px;
-            height: 692px;
+            width: 320px; /* This controls the display size of the canvas container */
+            height: 692px; /* This controls the display size of the canvas container */
             border: 1px solid #ddd;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            background: white;
+            background: white; /* Fallback, canvas will draw over this */
             margin-bottom: 25px;
         }
         
         #preview-canvas {
+            /* Canvas will be scaled to fit its container if its width/height attributes
+               don't match the container's CSS dimensions.
+               It's better to set CSS width/height to 100% of container
+               and manage drawing scale via canvas.width/height attributes. */
             width: 100%;
             height: 100%;
             display: block;
@@ -366,12 +370,12 @@
             left: 0;
             right: 0;
             bottom: 0;
-            pointer-events: none;
+            pointer-events: none; /* Allows clicks to pass through to canvas if needed, though canvas is primary */
         }
         
         .grid-line {
             position: absolute;
-            background: rgba(255, 0, 0, 0.2);
+            background: rgba(255, 0, 0, 0.2); /* Guideline color */
         }
         
         .horizontal {
@@ -391,7 +395,7 @@
             width: 15px;
             height: 15px;
             border-radius: 50%;
-            background: rgba(255, 0, 0, 0.5);
+            background: rgba(255, 0, 0, 0.5); /* Center marker color */
             transform: translate(-50%, -50%);
         }
         
@@ -401,8 +405,9 @@
             }
             
             .preview-container {
-                width: 280px;
-                height: 605px;
+                /* Adjust preview size for smaller screens if needed */
+                width: 280px; 
+                height: 605px; 
             }
             
             .dimension-controls {
@@ -512,7 +517,7 @@
             </div>
             
             <div class="preview-info">
-                预览比例: 40% (实际尺寸: <span id="dimensions-display">750×1624</span> 像素)
+                预览比例: 动态 (实际尺寸: <span id="dimensions-display">750×1624</span> 像素)
             </div>
             
             <button id="download-btn" class="download-btn">
@@ -551,31 +556,31 @@
         
         // 初始化变量
         let uploadedImage = null;
-        let targetWidth = 750;
-        let targetHeight = 1624;
+        let targetWidth = 750; // Default canvas drawing width
+        let targetHeight = 1624; // Default canvas drawing height
         
-        // 设置canvas尺寸
+        // 设置canvas初始绘制尺寸 (these are the actual pixels for drawing)
         canvas.width = targetWidth;
         canvas.height = targetHeight;
         
-        // 绘制参考线
+        // 绘制参考线 (on the overlay div)
         function drawGuidelines() {
-            previewOverlay.innerHTML = '';
+            previewOverlay.innerHTML = ''; // Clear previous guidelines
             
-            // 中心标记
+            // Center marker
             const centerMarker = document.createElement('div');
             centerMarker.className = 'center-marker';
             centerMarker.style.left = '50%';
             centerMarker.style.top = '50%';
             previewOverlay.appendChild(centerMarker);
             
-            // 水平线
+            // Horizontal line
             const hLine = document.createElement('div');
             hLine.className = 'grid-line horizontal';
             hLine.style.top = '50%';
             previewOverlay.appendChild(hLine);
             
-            // 垂直线
+            // Vertical line
             const vLine = document.createElement('div');
             vLine.className = 'grid-line vertical';
             vLine.style.left = '50%';
@@ -590,18 +595,18 @@
         // 拖放功能
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
-            uploadArea.style.borderColor = '#5d5dff';
+            uploadArea.style.borderColor = 'var(--primary-dark)'; // Use CSS var
             uploadArea.style.backgroundColor = '#edf0ff';
         });
         
         uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#c0c0ff';
+            uploadArea.style.borderColor = 'var(--secondary)'; // Use CSS var
             uploadArea.style.backgroundColor = '#f8f9ff';
         });
         
         uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            uploadArea.style.borderColor = '#c0c0ff';
+            uploadArea.style.borderColor = 'var(--secondary)';
             uploadArea.style.backgroundColor = '#f8f9ff';
             
             if (e.dataTransfer.files.length) {
@@ -625,8 +630,7 @@
         
         // 圆角滑块
         cornerSlider.addEventListener('input', () => {
-            const value = cornerSlider.value;
-            cornerValue.textContent = `${value}%`;
+            cornerValue.textContent = `${cornerSlider.value}%`;
             drawImage();
         });
         
@@ -647,19 +651,19 @@
             drawImage();
         });
         
-        // 背景尺寸输入
+        // 背景尺寸输入 (updates canvas drawing resolution)
         bgWidth.addEventListener('input', () => {
             targetWidth = parseInt(bgWidth.value) || 750;
-            canvas.width = targetWidth;
-            posX.max = targetWidth;
+            canvas.width = targetWidth; // Update canvas drawing width
+            posX.max = targetWidth; // Update slider max based on new canvas width
             updateDimensionsDisplay();
             drawImage();
         });
         
         bgHeight.addEventListener('input', () => {
             targetHeight = parseInt(bgHeight.value) || 1624;
-            canvas.height = targetHeight;
-            posY.max = targetHeight;
+            canvas.height = targetHeight; // Update canvas drawing height
+            posY.max = targetHeight; // Update slider max based on new canvas height
             updateDimensionsDisplay();
             drawImage();
         });
@@ -670,13 +674,18 @@
         
         // 下载按钮
         downloadBtn.addEventListener('click', () => {
+            // Custom modal can be implemented here instead of alert
             if (!uploadedImage) {
-                alert('请先上传图标！');
+                console.warn('请先上传图标！'); // Or show a custom message in the UI
+                // Example: display a message in a specific div
+                // document.getElementById('user-message').textContent = '请先上传图标！';
                 return;
             }
             
             const link = document.createElement('a');
             link.download = 'custom-icon-banner.png';
+            // Ensure canvas is fully drawn before getting data URL
+            drawImage(); // Redraw one last time to be sure
             link.href = canvas.toDataURL('image/png');
             link.click();
         });
@@ -684,7 +693,7 @@
         // 处理文件上传
         function handleFileUpload(file) {
             if (!file.type.match('image.*')) {
-                alert('请上传图片文件！');
+                console.warn('请上传图片文件！'); // Or show a custom message
                 return;
             }
             
@@ -694,9 +703,10 @@
                 img.onload = function() {
                     uploadedImage = img;
                     
-                    // 设置初始位置为画布中心
-                    const centerX = Math.max(0, (targetWidth - iconSize.value) / 2);
-                    const centerY = Math.max(0, (targetHeight - iconSize.value) / 2);
+                    // 设置初始位置为画布中心 (icon's top-left for centering)
+                    const currentIconSize = parseInt(iconSize.value); // Parse iconSize
+                    const centerX = Math.max(0, (targetWidth - currentIconSize) / 2);
+                    const centerY = Math.max(0, (targetHeight - currentIconSize) / 2);
                     
                     posX.value = Math.round(centerX);
                     posY.value = Math.round(centerY);
@@ -705,6 +715,11 @@
                     
                     drawImage();
                 };
+                img.onerror = function() {
+                    console.error("图片加载失败");
+                    uploadedImage = null; // Reset if image fails to load
+                    drawImage(); // Redraw to show placeholder
+                }
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
@@ -715,27 +730,12 @@
             dimensionsDisplay.textContent = `${targetWidth}×${targetHeight}`;
         }
         
-        // 绘制图片
+        // 绘制图片 - MODIFIED FUNCTION
         function drawImage() {
-            // 清除画布
+            // 1. Clear the canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            if (!uploadedImage) {
-                // 没有上传图片时显示默认状态
-                ctx.fillStyle = '#f0f0f0';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#ccc';
-                ctx.font = 'bold 24px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('上传图标预览', canvas.width/2, canvas.height/2 - 20);
-                
-                ctx.font = '16px Arial';
-                ctx.fillText('尺寸: ' + canvas.width + '×' + canvas.height, canvas.width/2, canvas.height/2 + 20);
-                return;
-            }
-            
-            // 绘制背景
+
+            // 2. Draw the global background (using user-selected colors)
             if (useGradient.checked) {
                 const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
                 gradient.addColorStop(0, bgColor1.value);
@@ -744,45 +744,62 @@
             } else {
                 ctx.fillStyle = bgColor1.value;
             }
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill entire canvas
+
+            // 3. Handle drawing based on whether an image is uploaded
+            if (!uploadedImage) {
+                // Draw placeholder text ON TOP of the global background
+                ctx.fillStyle = '#666666'; // A neutral dark gray for placeholder text
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('上传图标预览', canvas.width / 2, canvas.height / 2 - 20);
+
+                ctx.font = '16px Arial';
+                ctx.fillText('尺寸: ' + canvas.width + '×' + canvas.height, canvas.width / 2, canvas.height / 2 + 20);
+                return; // Nothing more to draw if no image
+            }
+
+            // 4. If image IS uploaded, draw it with clipping and transformations
+            ctx.save(); // Save context state BEFORE icon-specific transformations/clipping
+
+            const iconDrawWidth = parseInt(iconSize.value);
+            const iconDrawHeight = parseInt(iconSize.value); // Assuming icon is drawn as a square based on one slider
             
-            // 计算图标位置和尺寸
-            const iconWidth = parseInt(iconSize.value);
-            const iconHeight = parseInt(iconSize.value);
-            const x = parseInt(posX.value);
-            const y = parseInt(posY.value);
+            // posX and posY from sliders are the top-left corner of the icon
+            const finalX = parseInt(posX.value);
+            const finalY = parseInt(posY.value);
             
-            // 计算圆角半径（基于百分比）
-            const cornerRadius = parseFloat(cornerSlider.value) / 100 * Math.min(iconWidth, iconHeight) / 2;
-            
-            // 绘制圆角矩形路径
+            const cornerRadiusPercent = parseFloat(cornerSlider.value);
+            // Calculate corner radius based on the smaller dimension of the icon, as a percentage
+            const actualCornerRadius = (cornerRadiusPercent / 100) * (Math.min(iconDrawWidth, iconDrawHeight) / 2);
+
+            // Define the path for the rounded rectangle for the icon
             ctx.beginPath();
-            ctx.moveTo(x + cornerRadius, y);
-            ctx.lineTo(x + iconWidth - cornerRadius, y);
-            ctx.arcTo(x + iconWidth, y, x + iconWidth, y + cornerRadius, cornerRadius);
-            ctx.lineTo(x + iconWidth, y + iconHeight - cornerRadius);
-            ctx.arcTo(x + iconWidth, y + iconHeight, x + iconWidth - cornerRadius, y + iconHeight, cornerRadius);
-            ctx.lineTo(x + cornerRadius, y + iconHeight);
-            ctx.arcTo(x, y + iconHeight, x, y + iconHeight - cornerRadius, cornerRadius);
-            ctx.lineTo(x, y + cornerRadius);
-            ctx.arcTo(x, y, x + cornerRadius, y, cornerRadius);
+            ctx.moveTo(finalX + actualCornerRadius, finalY);
+            ctx.lineTo(finalX + iconDrawWidth - actualCornerRadius, finalY);
+            ctx.arcTo(finalX + iconDrawWidth, finalY, finalX + iconDrawWidth, finalY + actualCornerRadius, actualCornerRadius);
+            ctx.lineTo(finalX + iconDrawWidth, finalY + iconDrawHeight - actualCornerRadius);
+            ctx.arcTo(finalX + iconDrawWidth, finalY + iconDrawHeight, finalX + iconDrawWidth - actualCornerRadius, finalY + iconDrawHeight, actualCornerRadius);
+            ctx.lineTo(finalX + actualCornerRadius, finalY + iconDrawHeight);
+            ctx.arcTo(finalX, finalY + iconDrawHeight, finalX, finalY + iconDrawHeight - actualCornerRadius, actualCornerRadius);
+            ctx.lineTo(finalX, finalY + actualCornerRadius);
+            ctx.arcTo(finalX, finalY, finalX + actualCornerRadius, finalY, actualCornerRadius);
             ctx.closePath();
-            
-            // 裁剪路径
+
+            // Clip to this path
             ctx.clip();
-            
-            // 绘制图标
-            ctx.drawImage(uploadedImage, x, y, iconWidth, iconHeight);
-            
-            // 重置裁剪
-            ctx.restore();
-            ctx.save();
+
+            // Draw the uploaded image within the clipped path
+            // The image will be stretched/shrunk to fit iconDrawWidth and iconDrawHeight
+            ctx.drawImage(uploadedImage, finalX, finalY, iconDrawWidth, iconDrawHeight);
+
+            ctx.restore(); // Restore context to state before ctx.save() (i.e., unclipped)
         }
         
         // 初始化绘制
         updateDimensionsDisplay();
-        drawGuidelines();
-        drawImage();
+        drawGuidelines(); // Draw guidelines on the overlay
+        drawImage(); // Initial draw on the canvas
     </script>
 </body>
 </html>
